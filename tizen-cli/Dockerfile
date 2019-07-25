@@ -4,7 +4,7 @@
 FROM openjdk:8-jre-slim
 MAINTAINER Jan Suchy <jan.sandokan@gmail.com>
 
-ENV TIZEN_CLI_INSTALLER_URL http://download.tizen.org/sdk/Installer/tizen-studio_2.1/web-cli_Tizen_Studio_2.1_ubuntu-64.bin
+ENV TIZEN_CLI_INSTALLER_URL http://download.tizen.org/sdk/Installer/tizen-studio_3.3/web-cli_Tizen_Studio_3.3_ubuntu-64.bin
 
 ENV TIZEN_USER user
 ENV TIZEN_USER_HOME /home/$TIZEN_USER
