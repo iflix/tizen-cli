@@ -32,4 +32,7 @@ RUN INSTALLER=/tmp/$(basename "$TIZEN_CLI_INSTALLER_URL") \
        $TIZEN_USER_HOME/tizen-studio/package-manager
 
 COPY docker-entrypoint.sh /usr/local/bin/
+# Copy certificates directly to container
+# COPY certificates/ /run/certificates/
+
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
