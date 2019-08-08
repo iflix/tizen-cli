@@ -64,7 +64,12 @@ EOF
 create_security_profile() {
     [ -r "$AUTHOR_CERT_PKCS12_FILE" ] || print_help_exit "You must provide author certificate in PKCS12 format to build the package"
     [ -r "$AUTHOR_CERT_PASSWORD_FILE" ] || print_help_exit "You must provide author certificate password (even empty one)"
-    tizen security-profiles add -n $SECURITY_PROFILE -a $AUTHOR_CERT_PKCS12_FILE -p $(cat $AUTHOR_CERT_PASSWORD_FILE)
+    { # try
+      tizen security-profiles add -n $SECURITY_PROFILE -a $AUTHOR_CERT_PKCS12_FILE -p $(cat $AUTHOR_CERT_PASSWORD_FILE)
+    } || { # catch
+      # save log for exception
+      cat /home/user/tizen-studio-data/cli/logs/cli.log
+    }
 }
 
 BUILD_DIR=/tmp/build
@@ -92,13 +97,13 @@ if [ "$CMD" == "package" ]; then
     # Next command?
     CMD="$1"
     if [ "$CMD" == "install" ]; then
-	# We allow to continue with install right away...
-	shift
+      # We allow to continue with install right away...
+      shift
     else
-	# ...otherwise send the .wgt package to STDOUT and exit
-	exec 1>&3
-	cat "$PKG"
-	exit $?
+      # ...otherwise send the .wgt package to STDOUT and exit
+      exec 1>&3
+      cat "$PKG"
+      exit $?
     fi
 fi
 
@@ -109,15 +114,20 @@ fi
 
 if [ "$CMD" == "install" ]; then
     if [ -z "$PKG" ]; then
-	# We haven't built anything this time: Expect .wgt package on STDIN instead.
-	mkdir $PKG_DIR
-	PKG="$PKG_DIR/widget.wgt"
-        cat >"$PKG"
+      # We haven't built anything this time: Expect .wgt package on STDIN instead.
+      mkdir $PKG_DIR
+      PKG="$PKG_DIR/widget.wgt"
+      cat >"$PKG"
     fi
     [ -s "$PKG" ] || print_help_exit "You must provide a .wgt package on standard input or build one with the 'package' command"
-    # Install the package on remote Tizen device
-    sdb connect "$DEVICE_IP":26101
-    tizen install --name $(basename $PKG) -- $PKG_DIR
+    { # try
+      # Install the package on remote Tizen device
+      sdb connect "$DEVICE_IP":26101
+      tizen install --name $(basename $PKG) -- $PKG_DIR
+    } || { # catch
+      # save log for exception
+      cat /home/user/tizen-studio-data/cli/logs/cli.log
+    }
     exit $?
 fi
 
